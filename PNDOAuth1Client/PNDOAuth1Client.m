@@ -334,6 +334,47 @@ static NSString *PNDOAuthCreateSignature(NSURLRequest *request, NSDictionary *pa
 	return [self initWithBaseURL: url credential: [PNDMutableOAuth1Credential findStoreForServiceName: serviceName username: username] ?: [[PNDMutableOAuth1Credential alloc] initWithServiceName: serviceName]];
 }
 
+#pragma mark - NSCoding
+
+- (void)encodeWithCoder:(NSCoder *)aCoder {
+	[super encodeWithCoder: aCoder];
+	
+	[aCoder encodeObject: [NSKeyedArchiver archivedDataWithRootObject: self.credential] forKey: @"credential"];
+	
+	[aCoder encodeObject: self.consumerKey forKey: @"consumerKey"];
+	[aCoder encodeObject: self.consumerSecret forKey: @"consumerSecret"];
+	[aCoder encodeInteger: self.signatureMethod forKey: @"signatureMethod"];
+
+	[aCoder encodeObject: self.scope forKey: @"scope"];
+	[aCoder encodeObject: self.callback forKey: @"callback"];
+	[aCoder encodeObject: self.realm forKey: @"realm"];
+	[aCoder encodeObject: self.displayName forKey: @"displayName"];
+
+	[aCoder encodeObject: self.requestTokenURL forKey: @"requestTokenURL"];
+	[aCoder encodeObject: self.authorizationURL forKey: @"authorizationURL"];
+	[aCoder encodeObject: self.accessTokenURL forKey: @"accessTokenURL"];
+}
+
+- (id)initWithCoder:(NSCoder *)aDecoder {
+	if ((self = [super initWithCoder: aDecoder])) {
+		self.credential = [NSKeyedUnarchiver unarchiveObjectWithData: [aDecoder decodeObjectForKey: @"credential"]];
+
+		self.consumerKey = [aDecoder decodeObjectForKey: @"consumerKey"];
+		self.consumerSecret = [aDecoder decodeObjectForKey: @"consumerSecret"];
+		self.signatureMethod = [aDecoder decodeIntegerForKey: @"signatureMethod"];
+
+		self.scope = [aDecoder decodeObjectForKey: @"scope"];
+		self.callback = [aDecoder decodeObjectForKey: @"callback"];
+		self.realm = [aDecoder decodeObjectForKey: @"realm"];
+		self.displayName = [aDecoder decodeObjectForKey: @"displayName"];
+
+		self.requestTokenURL = [aDecoder decodeObjectForKey: @"requestTokenURL"];
+		self.authorizationURL = [aDecoder decodeObjectForKey: @"authorizationURL"];
+		self.accessTokenURL = [aDecoder decodeObjectForKey: @"accessTokenURL"];
+	}
+	return self;
+}
+
 #pragma mark - AFHTTPClient
 
 - (NSMutableURLRequest *)requestWithMethod:(NSString *)method path:(NSString *)path parameters:(NSDictionary *)parameters {

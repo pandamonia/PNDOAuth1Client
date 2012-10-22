@@ -11,7 +11,7 @@
 #import "AFHTTPRequestOperation.h"
 #import "PNDOAuth1Credential.h"
 
-typedef NS_ENUM(NSUInteger, PNDOAuthSignatureMethod) {
+typedef NS_ENUM(NSInteger, PNDOAuthSignatureMethod) {
     PNDOAuthSignatureMethodPlaintext = 0,
     PNDOAuthSignatureMethodHMAC_SHA1 = 1,
 };
