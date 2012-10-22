@@ -165,12 +165,20 @@
 				6CD6471D1635A44100FAE62C /* PNDOAuth1Client.m */,
 				6CD647131635A42E00FAE62C /* PNDOAuth1Credential.h */,
 				6CD647141635A42E00FAE62C /* PNDOAuth1Credential.m */,
+				6CD647341636088A00FAE62C /* Mac */,
+			);
+			name = PNDOAuth1Client;
+			path = ../PNDOAuth1Client;
+			sourceTree = "<group>";
+		};
+		6CD647341636088A00FAE62C /* Mac */ = {
+			isa = PBXGroup;
+			children = (
 				6CD647151635A42E00FAE62C /* PNDOAuthLoginWindowController.h */,
 				6CD647161635A42E00FAE62C /* PNDOAuthLoginWindowController.m */,
 				6CD647171635A42E00FAE62C /* PNDOAuthLoginWindowController.xib */,
 			);
-			name = PNDOAuth1Client;
-			path = ../PNDOAuth1Client;
+			path = Mac;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
