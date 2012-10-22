@@ -57,16 +57,4 @@
 @dynamic verifier, callbackConfirmed, userEmailIsVerified;
 @dynamic domain, hostedDomain, iconURLString, language, mobile;
 
-@synthesize hasToken = _hasToken;
-
-- (BOOL)hasToken {
-	return !!self.token.length && _hasToken;
-}
-
-- (void)setToken:(NSString *)token {
-	[self setValue: token forUndefinedKey: @"token"];
-	if (token.length)
-		_hasToken = YES;
-}
-
 @end
