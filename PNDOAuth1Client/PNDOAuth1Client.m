@@ -665,7 +665,7 @@ static NSString *PNDOAuthCreateSignature(NSURLRequest *request, NSDictionary *pa
 #pragma mark - Signing in
 
 - (void)startSigningInWithController:(id <PNDOAuth1LogInController>)controller success:(void(^)(void))success failure:(void(^)(NSError *err))failure {
-	[self getRequestTokenAtURL: self.requestTokenURL success:^(NSDictionary *response) {
+	[self getRequestTokenAtPath: self.requestTokenURL.absoluteString success:^(NSDictionary *response) {
 		[self setAuthenticationKeysForResponseDictionary: response];
 		[self startWebRequestAtPath: self.authorizationURL.absoluteString withController: controller success:^(NSDictionary *response){
 			[self setAuthenticationKeysForResponseDictionary: response];
@@ -698,9 +698,9 @@ static NSString *PNDOAuthCreateSignature(NSURLRequest *request, NSDictionary *pa
 
 #pragma mark - Authorization requests
 
-- (void)getRequestTokenAtURL:(NSURL *)requestTokenURL success:(void(^)(NSDictionary *response))success failure:(void(^)(NSError *err))failure {
+- (void)getRequestTokenAtPath:(NSString *)requestTokenPath success:(void(^)(NSDictionary *response))success failure:(void(^)(NSError *err))failure {
 	NSParameterAssert(success);
-	NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL: requestTokenURL];
+	NSMutableURLRequest *request = [super requestWithMethod: @"GET" path: requestTokenPath parameters: nil];
 	request.HTTPShouldHandleCookies = NO;
 	[self addRequestTokenHeaderToRequest: request];
 	NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
