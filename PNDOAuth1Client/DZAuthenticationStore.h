@@ -2,14 +2,13 @@
 //  DZAuthenticationStore.h
 //  PNDOAuth1Client
 //
-//  Copyright (c) 2010 Google Inc.
 //  Copyright (c) 2012 Pandamonia LLC.
 //  Licensed under Apache 2.0. See LICENSE.
 //
 
 @class DZAuthenticationStore;
 
-@protocol DZAuthenticationStore <NSObject, NSCoding, NSMutableCopying, NSCopying>
+@protocol DZAuthenticationStore <NSObject, NSSecureCoding, NSMutableCopying, NSCopying>
 
 @property (nonatomic, copy, readonly) NSString *username;
 @property (nonatomic, copy, readonly) id <NSObject, NSCoding> contents;

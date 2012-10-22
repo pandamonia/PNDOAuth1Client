@@ -2,7 +2,6 @@
 //  DZAuthenticationStore.m
 //  PNDOAuth1Client
 //
-//  Copyright (c) 2010 Google Inc.
 //  Copyright (c) 2012 Pandamonia LLC.
 //  Licensed under Apache 2.0. See LICENSE.
 //
@@ -129,7 +128,9 @@ static void setValueImplementation(NSObject *self, SEL _cmd, id value) {
 	char *readonly = property_copyAttributeValue(property, "R");
 	BOOL isMutable = DZClassIsMutable(self);
 	if (!isMutable && !readonly && sel_isEqual(sel, setterForProperty(property))) {
-		class_addMethod(self, sel, (IMP)setValueImplementation, "v@:@");
+		class_addMethod(self, sel, imp_implementationWithBlock(^(NSObject *self, id value){
+			[self setValue: value forUndefinedKey: propertyName];
+		}), "v@:@");
 	}
 	free(readonly);
 	
@@ -233,13 +234,17 @@ static void setValueImplementation(NSObject *self, SEL _cmd, id value) {
 
 #pragma mark NSCoding
 
++ (BOOL)supportsSecureCoding {
+	return YES;
+}
+
 - (id)initWithCoder:(NSCoder *)aDecoder {
     if ((self = [super init])) {
-		_serviceName = [[aDecoder decodeObjectForKey: @"serviceName"] copy];
-		_identifier = [[aDecoder decodeObjectForKey: @"identifier"] copy];
-		_username = [[aDecoder decodeObjectForKey: @"username"] copy];
-		_userInfo = [[aDecoder decodeObjectForKey: @"userInfo"] copy];
-		_transientProperties = [[aDecoder decodeObjectForKey: @"transientProperties"] copy] ?: [NSMutableDictionary dictionary];
+		_serviceName = [[aDecoder decodeObjectOfClass: [NSString class] forKey: @"serviceName"] copy];
+		_identifier = [[aDecoder decodeObjectOfClass: [NSString class] forKey: @"identifier"] copy];
+		_username = [[aDecoder decodeObjectOfClass: [NSString class] forKey: @"username"] copy];
+		_userInfo = [[aDecoder decodeObjectOfClass: [NSString class] forKey: @"userInfo"] copy];
+		_transientProperties = [[aDecoder decodeObjectOfClass: [NSDictionary class] forKey: @"transientProperties"] copy] ?: [NSMutableDictionary dictionary];
 		[self dz_sharedInit];
 	}
 	return self;
