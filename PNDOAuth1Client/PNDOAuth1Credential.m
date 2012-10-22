@@ -34,7 +34,7 @@
 }
 
 + (NSSet *)keyPathsForValuesAffectingUserInfo {
-	return [NSSet setWithObjects: @"verifier", @"callbackConfirmed", @"userEmailIsVerified", nil];
+	return [NSSet setWithObjects: @"verifier", @"callbackConfirmed", @"userEmail", @"userEmailIsVerified", nil];
 }
 
 + (NSSet *)keyPathsForValuesAffectingTransientProperties {

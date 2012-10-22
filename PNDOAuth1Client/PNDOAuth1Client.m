@@ -313,12 +313,25 @@ static NSString *PNDOAuthCreateSignature(NSURLRequest *request, NSDictionary *pa
 
 @implementation PNDOAuth1Client
 
-- (id)initWithBaseURL:(NSURL *)url serviceName:(NSString *)serviceName username: (NSString *)username {
+- (id)initWithBaseURL:(NSURL *)url credential:(PNDMutableOAuth1Credential *)credential {
+	NSParameterAssert(credential);
 	if ((self = [super initWithBaseURL: url])) {
-		if (username) self.credential = [PNDMutableOAuth1Credential findStoreForServiceName: serviceName username: username];
-		if (!self.credential) self.credential = [[PNDMutableOAuth1Credential alloc] initWithServiceName: serviceName];
+		self.credential = credential;
 	}
 	return self;
+}
+
+- (id)initWithBaseURL:(NSURL *)url serviceName:(NSString *)serviceName {
+	return [self initWithBaseURL: url credential: [[PNDMutableOAuth1Credential alloc] initWithServiceName: serviceName]];
+}
+
+- (id)initWithBaseURL:(NSURL *)url serviceName:(NSString *)serviceName keychainIdentifier: (NSString *)identifier {
+	if (!identifier) return [self initWithBaseURL: url serviceName: serviceName];
+	return [self initWithBaseURL: url credential: [PNDMutableOAuth1Credential findStoreForServiceName: serviceName identifier: identifier] ?: [[PNDMutableOAuth1Credential alloc] initWithServiceName: serviceName identifier: identifier]];
+}
+
+- (id)initWithBaseURL:(NSURL *)url serviceName:(NSString *)serviceName username: (NSString *)username {
+	return [self initWithBaseURL: url credential: [PNDMutableOAuth1Credential findStoreForServiceName: serviceName username: username] ?: [[PNDMutableOAuth1Credential alloc] initWithServiceName: serviceName]];
 }
 
 #pragma mark - AFHTTPClient
@@ -575,12 +588,16 @@ static NSString *PNDOAuthCreateSignature(NSURLRequest *request, NSDictionary *pa
 	return PNDOAuthSignatureNameForMethod(self.signatureMethod);
 }
 
-- (PNDOAuth1Credential *)credentials {
-	return [self.credential copy];
+- (NSString *)keychainIdentifier {
+	return self.credential.identifier;
 }
 
-- (NSString *)username {
-	return self.credential.username;
+- (NSString *)userEmail {
+	return self.credential.userEmail;
+}
+
+- (BOOL)userEmailIsVerified {
+	return [self.credential.userEmailIsVerified boolValue];
 }
 
 - (BOOL)canAuthorize {

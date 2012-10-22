@@ -80,7 +80,9 @@ extern NSString *const PNDOAuthUserEmailIsVerifiedKey;
 
 @interface PNDOAuth1Client : AFHTTPClient
 
+- (id)initWithBaseURL:(NSURL *)url serviceName:(NSString *)serviceName;
 - (id)initWithBaseURL:(NSURL *)url serviceName:(NSString *)serviceName username: (NSString *)username;
+- (id)initWithBaseURL:(NSURL *)url serviceName:(NSString *)serviceName keychainIdentifier: (NSString *)identifier;
 
 @property (nonatomic, copy) NSString *consumerKey;
 @property (nonatomic, copy) NSString *consumerSecret;
@@ -95,8 +97,11 @@ extern NSString *const PNDOAuthUserEmailIsVerifiedKey;
 @property (nonatomic, strong) NSURL *authorizationURL;
 @property (nonatomic, strong) NSURL *accessTokenURL;
 
-@property (nonatomic, copy, readonly) PNDOAuth1Credential *credentials;
-@property (nonatomic, readonly) NSString *username;
+@property (nonatomic, readonly) NSString *keychainIdentifier;
+
+@property (nonatomic, readonly) NSString *userEmail;
+@property (nonatomic, readonly, getter = userEmailIsVerified) BOOL userEmailVerified;
+
 @property (nonatomic, readonly) BOOL canAuthorize;
 
 - (void)startSigningInWithController:(id <PNDOAuth1LogInController>)controller success:(void(^)(void))success failure:(void(^)(NSError *err))failure;

@@ -46,8 +46,8 @@ static NSString *const kTwitterUserDefaultsItemName = @"Twitter User Name";
 
 	NSString *scope = @"http://api.twitter.com/";
 	NSURL *URLBase = [NSURL URLWithString: scope];
-	NSString *username = [[NSUserDefaults standardUserDefaults] stringForKey: kTwitterUserDefaultsItemName];
-	PNDOAuth1Client *client = [[PNDOAuth1Client alloc] initWithBaseURL: URLBase serviceName: kTwitterServiceName username: username];
+	NSString *identifier = [[NSUserDefaults standardUserDefaults] stringForKey: kTwitterUserDefaultsItemName];
+	PNDOAuth1Client *client = [[PNDOAuth1Client alloc] initWithBaseURL: URLBase serviceName: kTwitterServiceName keychainIdentifier: identifier];
 	client.scope = scope;
 	client.consumerKey = myConsumerKey;
 	client.consumerSecret = myConsumerSecret;
@@ -96,7 +96,7 @@ static NSString *const kTwitterUserDefaultsItemName = @"Twitter User Name";
 
 	self.loginWindowController = [PNDOAuthLoginWindowController new];
 	[self.client startSigningInWithController: self.loginWindowController success:^{
-		[[NSUserDefaults standardUserDefaults] setObject: self.client.username forKey: kTwitterUserDefaultsItemName];
+		[[NSUserDefaults standardUserDefaults] setObject: self.client.keychainIdentifier forKey: kTwitterUserDefaultsItemName];
 		[self doAnAuthenticatedAPIFetch];
 		[self updateUI];
 	} failure:^(NSError *error) {
@@ -155,9 +155,9 @@ static NSString *const kTwitterUserDefaultsItemName = @"Twitter User Name";
 	// update the text showing the signed-in state and the button title
 	if (self.signedIn) {
 		// signed in
-		NSString *token = self.client.credentials.token;
-		NSString *email = self.client.username;
-		BOOL isVerified = [self.client.credentials.userEmailIsVerified boolValue];
+		BOOL hasToken = self.client.canAuthorize;
+		NSString *email = self.client.userEmail;
+		BOOL isVerified = self.client.userEmailVerified;
 
 		if (!isVerified) {
 			// email address is not verified
@@ -167,13 +167,13 @@ static NSString *const kTwitterUserDefaultsItemName = @"Twitter User Name";
 			email = [email stringByAppendingString:@" (unverified)"];
 		}
 
-		[self.tokenField setStringValue:(token != nil ? token : @"")];
+		[self.tokenField setStringValue:(hasToken ? @"YES" : @"NO")];
 		[self.usernameField setStringValue:(email != nil ? email : @"")];
 		[self.signInOutButton setTitle:@"Sign Out"];
 	} else {
 		// signed out
 		[self.usernameField setStringValue:@"-Not signed in-"];
-		[self.tokenField setStringValue:@"-No token-"];
+		[self.tokenField setStringValue:@"NO"];
 		[self.signInOutButton setTitle:@"Sign In..."];
 	}
 }

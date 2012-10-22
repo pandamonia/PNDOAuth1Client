@@ -709,7 +709,7 @@
 							<object class="NSTextFieldCell" key="NSTitleCell">
 								<int key="NSCellFlags">67108864</int>
 								<int key="NSCellFlags2">0</int>
-								<string key="NSContents">Username</string>
+								<string key="NSContents">Email (if available)</string>
 								<object class="NSFont" key="NSSupport" id="26">
 									<string key="NSName">LucidaGrande</string>
 									<double key="NSSize">11</double>
@@ -790,7 +790,7 @@
 											<object class="NSTextFieldCell" key="NSCell" id="844139217">
 												<int key="NSCellFlags">68157504</int>
 												<int key="NSCellFlags2">272630784</int>
-												<string key="NSContents">- No token -</string>
+												<string key="NSContents">NO</string>
 												<reference key="NSSupport" ref="133380339"/>
 												<string key="NSCellIdentifier">_NS:1535</string>
 												<reference key="NSControlView" ref="253427055"/>
@@ -816,7 +816,7 @@
 							<object class="NSTextFieldCell" key="NSTitleCell">
 								<int key="NSCellFlags">67108864</int>
 								<int key="NSCellFlags2">0</int>
-								<string key="NSContents">Token</string>
+								<string key="NSContents">Has token?</string>
 								<reference key="NSSupport" ref="26"/>
 								<reference key="NSBackgroundColor" ref="619786174"/>
 								<object class="NSColor" key="NSTextColor">
@@ -2265,6 +2265,17 @@
 				<object class="IBPartialClassDescription">
 					<string key="className">PNDOAuth1MacSampleWindowController</string>
 					<string key="superclassName">NSWindowController</string>
+					<object class="NSMutableDictionary" key="actions">
+						<string key="NS.key.0">signInOutClicked:</string>
+						<string key="NS.object.0">id</string>
+					</object>
+					<object class="NSMutableDictionary" key="actionInfosByName">
+						<string key="NS.key.0">signInOutClicked:</string>
+						<object class="IBActionInfo" key="NS.object.0">
+							<string key="name">signInOutClicked:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+					</object>
 					<dictionary class="NSMutableDictionary" key="outlets">
 						<string key="signInOutButton">NSButton</string>
 						<string key="spinner">NSProgressIndicator</string>

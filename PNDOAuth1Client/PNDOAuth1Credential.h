@@ -15,6 +15,8 @@
 @property (nonatomic, copy, readonly) NSString *secret;
 @property (nonatomic, copy, readonly) NSString *verifier;
 @property (nonatomic, copy, readonly) NSString *callbackConfirmed;
+
+@property (nonatomic, copy, readonly) NSString *userEmail;
 @property (nonatomic, copy, readonly) NSString *userEmailIsVerified;
 
 @property (nonatomic, copy, readonly) NSString *domain;
@@ -35,6 +37,8 @@
 @property (nonatomic, copy, readwrite) NSString *secret;
 @property (nonatomic, copy, readwrite) NSString *verifier;
 @property (nonatomic, copy, readwrite) NSString *callbackConfirmed;
+
+@property (nonatomic, copy, readwrite) NSString *userEmail;
 @property (nonatomic, copy, readwrite) NSString *userEmailIsVerified;
 
 @property (nonatomic, copy, readwrite) NSString *domain;
