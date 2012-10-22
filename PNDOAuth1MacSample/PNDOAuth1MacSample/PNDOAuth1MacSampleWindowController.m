@@ -59,6 +59,7 @@ static NSString *const kTwitterUserDefaultsItemName = @"Twitter User Name";
 
 	NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
 	[nc addObserver: self selector: @selector(signInFetchStateChanged:) name: PNDOAuthTokenFetchWillStartNotification object: client];
+	[nc addObserver: self selector: @selector(signInFetchStateChanged:) name: PNDOAuthTokenFetchDidSucceedNotification object: client];
 	[nc addObserver: self selector: @selector(signInFetchStateChanged:) name: PNDOAuthTokenFetchDidFailNotification object: client];
 	[nc addObserver: self selector: @selector(signInNetworkLost:) name: PNDOAuthNetworkLostNotification object: client];
 
@@ -146,9 +147,8 @@ static NSString *const kTwitterUserDefaultsItemName = @"Twitter User Name";
 	// the network dropped for 30 seconds
 	//
 	// we could alert the user and wait for notification that the network has
-	// has returned, or just cancel the sign-in sheet, as shown here
-	#warning TODO - cancellation!
-	//[mWindowController cancelSigningIn];
+	// has returned, or just cancel the sign-in sheet, as shown here.
+	[self.client cancelSigningIn];
 }
 
 - (void)updateUI {

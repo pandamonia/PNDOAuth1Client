@@ -105,6 +105,7 @@ extern NSString *const PNDOAuthUserEmailIsVerifiedKey;
 @property (nonatomic, readonly) BOOL canAuthorize;
 
 - (void)startSigningInWithController:(id <PNDOAuth1LogInController>)controller success:(void(^)(void))success failure:(void(^)(NSError *err))failure;
+- (void)cancelSigningIn;
 
 - (void)reset;
 

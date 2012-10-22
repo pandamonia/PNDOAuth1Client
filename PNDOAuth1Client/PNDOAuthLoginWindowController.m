@@ -14,6 +14,7 @@
 	BOOL _hasCalledFinished;
 	BOOL _hasDoneFinalRedirect;
 	NSModalSession _modalSession;
+	NSMutableArray *_cookies;
 }
 
 @end
@@ -40,7 +41,6 @@
 	[self.webView addObserver: self forKeyPath: @"canGoBack" options: NSKeyValueObservingOptionNew context: NULL];
 	[self.webView addObserver: self forKeyPath: @"canGoForward" options: NSKeyValueObservingOptionNew context: NULL];
 }
-
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
 	if ([keyPath isEqualToString: @"canGoBack"] || [keyPath isEqualToString: @"canGoForward"]) {
@@ -115,9 +115,10 @@
 #pragma mark WebView delegate
 
 - (NSURLRequest *)webView:(WebView *)sender resource:(id)identifier willSendRequest:(NSURLRequest *)request redirectResponse:(NSURLResponse *)redirectResponse fromDataSource:(WebDataSource *)dataSource {
+	[self handleCookiesForResponse:redirectResponse];
+
 	// override WebKit's cookie storage with our own to avoid cookie persistence
 	// across sign-ins and interaction with the Safari browser's sign-in state
-	[self handleCookiesForResponse:redirectResponse];
 	request = [self addCookiesToRequest:request];
 
 	if (!_hasDoneFinalRedirect) {
@@ -163,38 +164,45 @@
 // rather than the user being kept signed in by the cookies.
 
 - (void)handleCookiesForResponse:(NSURLResponse *)response {
-	#warning TODO - Cookies!
-	/*if ([response respondsToSelector:@selector(allHeaderFields)]) {
-		// grab the cookies from the header as NSHTTPCookies and store them locally
-		NSDictionary *headers = [(NSHTTPURLResponse *)response allHeaderFields];
-		if (headers) {
-			NSURL *url = [response URL];
-			NSArray *cookies = [NSHTTPCookie cookiesWithResponseHeaderFields:headers
-																	  forURL:url];
-			if ([cookies count] > 0) {
-				self.cookieStorage.cookies = cookies;
-			}
+	if ([response respondsToSelector:@selector(allHeaderFields)]) {
+		NSDictionary *allHeaders = [(NSHTTPURLResponse *)response allHeaderFields];
+		NSArray *cookies = [NSHTTPCookie cookiesWithResponseHeaderFields:allHeaders forURL: response.URL];
+		if (cookies.count) {
+			if (!_cookies) _cookies = [NSMutableArray array];
+			[_cookies removeObjectsInArray: cookies];
+			[_cookies addObjectsFromArray: cookies];
+			[self removeExpiredCookies];
 		}
-	}*/
+	}
 }
 
 - (NSURLRequest *)addCookiesToRequest:(NSURLRequest *)request {
-	#warning TODO - Cookies!
 	// override WebKit's usual automatic storage of cookies
 	NSMutableURLRequest *mutableRequest = [request mutableCopy];
-	[mutableRequest setHTTPShouldHandleCookies:NO];
-
-	// add our locally-stored cookies for this URL, if any
-	/*NSArray *cookies = [self.cookieStorage cookiesForURL: request.URL];
+	NSArray *cookies = [self cookiesForRequest: mutableRequest];
 	if (cookies.count) {
 		NSDictionary *headers = [NSHTTPCookie requestHeaderFieldsWithCookies:cookies];
 		NSString *cookieHeader = headers[@"Cookie"];
 		if (cookieHeader) {
 			[mutableRequest setValue:cookieHeader forHTTPHeaderField:@"Cookie"];
 		}
-	}*/
-	
+	}
 	return mutableRequest;
 }
+
+- (void)removeExpiredCookies
+{
+	[_cookies removeObjectsAtIndexes: [_cookies indexesOfObjectsPassingTest:^BOOL(NSHTTPCookie *aCookie, NSUInteger idx, BOOL *stop) {
+		return (aCookie.expiresDate.timeIntervalSinceNow < 0);
+	}]];
+}
+
+- (NSArray *)cookiesForRequest:(NSURLRequest *)request
+{
+	return [_cookies objectsAtIndexes: [_cookies indexesOfObjectsPassingTest:^BOOL(NSHTTPCookie *aCookie, NSUInteger idx, BOOL *stop) {
+		return (aCookie.expiresDate.timeIntervalSinceNow < 0 && ([aCookie.domain isEqualToString: request.URL.host] || ([aCookie.domain hasPrefix:@"."] && [[NSString stringWithFormat:@".%@", request.URL.host] hasSuffix: aCookie.domain])) && [request.URL.path hasPrefix: aCookie.path]);
+	}]];
+}
+
 
 @end

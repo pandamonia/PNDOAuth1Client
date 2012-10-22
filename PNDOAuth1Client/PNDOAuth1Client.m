@@ -677,6 +677,25 @@ static NSString *PNDOAuthCreateSignature(NSURLRequest *request, NSDictionary *pa
 	} failure: failure];
 }
 
+- (void)cancelSigningIn {
+	NSString *requestTokenPath = self.requestTokenURL.absoluteString;
+	NSString *authorizationPath = self.authorizationURL.absoluteString;
+	NSString *accessTokenPath = self.requestTokenURL.absoluteString;
+
+	for (NSOperation *operation in [self.operationQueue operations]) {
+        if (![operation isKindOfClass:[AFHTTPRequestOperation class]]) {
+            continue;
+        }
+
+		NSString *URLString = [[[(AFHTTPRequestOperation *)operation request] URL] absoluteString];
+        if ([URLString hasPrefix: requestTokenPath] || [URLString hasPrefix: authorizationPath] || [URLString hasPrefix: accessTokenPath]) {
+            [operation cancel];
+        }
+    }
+	[self.loginController dismiss];
+	[self reset];
+}
+
 #pragma mark - Authorization requests
 
 - (void)getRequestTokenAtURL:(NSURL *)requestTokenURL success:(void(^)(NSDictionary *response))success failure:(void(^)(NSError *err))failure {
@@ -771,23 +790,6 @@ static NSString *PNDOAuthCreateSignature(NSURLRequest *request, NSDictionary *pa
 	}];
 	[self enqueueHTTPRequestOperation: op];
 	[nc postNotificationName: PNDOAuthTokenFetchWillStartNotification object: self userInfo: @{ PNDOAuthTokenFetchTypeKey : PNDOAuthTokenFetchTypeAccess }];
-}
-
-#pragma mark -
-
-- (BOOL)loginController: (id <PNDOAuth1LogInController>)controller redirectedToRequest: (NSURLRequest *)request {
-	NSString *callback = self.callback;
-	if (!self.callback.length) {
-		return NO;
-	}
-
-	NSURL *callbackURL = [NSURL URLWithString: callback];
-	if (![callbackURL.host isEqual: request.URL.host] || ![callbackURL.path isEqual: request.URL.path]) {
-		// tell the caller that this request is nothing interesting
-		return NO;
-	}
-
-	return YES;
 }
 
 @end
