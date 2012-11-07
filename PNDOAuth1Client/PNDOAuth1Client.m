@@ -670,7 +670,9 @@ static NSString *PNDOAuthCreateSignature(NSURLRequest *request, NSDictionary *pa
 		[self startWebRequestAtPath: self.authorizationURL.absoluteString withController: controller success:^(NSDictionary *response){
 			[self setAuthenticationKeysForResponseDictionary: response];
 			[self getAccessTokenAtPath: self.accessTokenURL.absoluteString success:^(NSDictionary *response) {
+				[self willChangeValueForKey: @"canAuthorize"];
 				[self setAuthenticationKeysForResponseDictionary: response];
+				[self didChangeValueForKey: @"canAuthorize"];
 				if (success) success();
 			} failure: failure];
 		} failure: failure];

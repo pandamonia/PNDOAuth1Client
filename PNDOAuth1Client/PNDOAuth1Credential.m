@@ -49,6 +49,15 @@
 	return [PNDMutableOAuth1Credential class];
 }
 
+- (void)setToken:(NSString *)token {
+	BOOL shouldFire = (!self.hasToken && token.length) || (!token.length && self.hasToken);
+	if (shouldFire)
+		[self willChangeValueForKey: @"hasToken"];
+	[self setValue: token forUndefinedKey: @"token"];
+	if (shouldFire)
+		[self didChangeValueForKey: @"hasToken"];
+}
+
 @end
 
 @implementation PNDMutableOAuth1Credential

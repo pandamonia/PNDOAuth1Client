@@ -383,6 +383,8 @@ static void setValueImplementation(NSObject *self, SEL _cmd, id value) {
 	NSSet *transientsKeys = [[self class] keyPathsForValuesAffectingValueForKey: @"transientProperties"];
 
 	if (isMutable && [contentsKeys containsObject: key]) {
+		[self willChangeValueForKey: key];
+		[self willChangeValueForKey: @"contents"];
 		if (contentsKeys.count > 1) {
 			NSMutableDictionary *userInfo = [(NSDictionary *)self.contents mutableCopy] ?: [NSMutableDictionary dictionary];
 			userInfo[key] = value;
@@ -390,13 +392,21 @@ static void setValueImplementation(NSObject *self, SEL _cmd, id value) {
 		} else {
 			self.contents = value;
 		}
+		[self didChangeValueForKey: @"contents"];
+		[self didChangeValueForKey: key];
 	} else if (isMutable && [userInfoKeys containsObject: key]) {
+		[self willChangeValueForKey: key];
+		[self willChangeValueForKey: @"userInfo"];
 		NSMutableDictionary *userInfo = [self.userInfo mutableCopy] ?: [NSMutableDictionary dictionary];
 		userInfo[key] = value;
 		self.userInfo = userInfo;
+		[self didChangeValueForKey: @"userInfo"];
+		[self didChangeValueForKey: key];
 	} else if (isMutable && [transientsKeys containsObject: key]) {
 		NSMutableDictionary *dict = (id)self.transientProperties;
+		[self willChangeValueForKey: key];
 		dict[key] = value;
+		[self didChangeValueForKey: key];
 	} else {
 		[super setValue: value forUndefinedKey: key];
 	}
