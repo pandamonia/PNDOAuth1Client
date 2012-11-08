@@ -11,7 +11,8 @@ Pod::Spec.new do |s|
   s.ios.source_files = 'PNDOAuth1Client/*.{h,m}', 'PNDOAuth1Client/iOS/*.{h,m}'
   s.osx.resources    = 'PNDOAuth1Client/Mac/*.xib'
   s.ios.resources    = 'PNDOAuth1Client/iOS/*.xib'
+  s.ios.frameworks   = 'Security'
+  s.osx.frameworks   = 'Security', 'WebKit'
   s.requires_arc     = true
-  s.frameworks       = 'Security'
   s.dependency         'AFNetworking'
 end
