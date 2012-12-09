@@ -11,7 +11,7 @@
 #import "AFHTTPRequestOperation.h"
 #import <objc/runtime.h>
 #import <CommonCrypto/CommonHMAC.h>
-#import "PNDOAuth1Credential.h"
+#import "SSKeychain.h"
 
 NSString *const PNDOAuthErrorDomain = @"PNDOAuthError";
 NSString *const PNDOAuthErrorMissingPropertyKey = @"PNDOAuthMissingProperty";
@@ -46,6 +46,20 @@ NSString *const PNDOAuthTimestampKey         = @"oauth_timestamp";
 NSString *const PNDOAuthNonceKey             = @"oauth_nonce";
 NSString *const PNDOAuthVerifierKey          = @"oauth_verifier";
 NSString *const PNDOAuthVersionKey           = @"oauth_version";
+
+/*	PNDOAuthTokenKey: @"credential.oauth_token",
+ PNDOAuthHostedDomainKey: @"credential.hd",
+ PNDOAuthDomainKey: @"credential.domain",
+ PNDOAuthIconURLKey: @"credential.iconUrl",
+ PNDOAuthLanguageKey: @"credential.hl",
+ PNDOAuthMobileKey: @"credential.btmpl",
+ PNDOAuthVerifierKey: @"credential.oauth_verifier",
+ PNDOAuthServiceProviderKey: @"credential.serviceProvider",
+ PNDOAuthUserEmailKey: @"credential.email",
+ PNDOAuthUserEmailIsVerifiedKey: @"credential.isVerified",
+ PNDOAuthTokenSecretKey: @"credential.oauth_token_secret",
+ PNDOAuthCallbackConfirmedKey: @"credential.oauth_callback_confirmed",
+*/
 
 // GetRequestToken extensions
 NSString *const PNDOAuthDisplayNameKey       = @"xoauth_displayname";
@@ -306,32 +320,46 @@ static NSString *PNDOAuthCreateSignature(NSURLRequest *request, NSDictionary *pa
 
 @interface PNDOAuth1Client ()
 
-@property (nonatomic, strong) PNDMutableOAuth1Credential *credential;
+@property (nonatomic, copy) NSString *serviceName;
+@property (nonatomic, copy, readwrite) NSString *keychainIdentifier;
+@property (nonatomic, strong) NSMutableDictionary *credential;
 @property (nonatomic, strong) id <PNDOAuth1LogInController> loginController;
 
 @end
 
 @implementation PNDOAuth1Client
 
-- (id)initWithBaseURL:(NSURL *)url credential:(PNDMutableOAuth1Credential *)credential {
-	NSParameterAssert(credential);
+- (void)pnd_sharedSetupWithServiceName: (NSString *)serviceName keychainIdentifier: (NSString *)identifier {
+	self.serviceName = serviceName;
+	self.keychainIdentifier = identifier.length ? identifier : [[NSUUID UUID] UUIDString];
+	
+	NSMutableDictionary *credential = nil;
+	
+	if (identifier.length) {
+		NSData *fromKeychain = [SSKeychain passwordDataForService: self.serviceName account: self.keychainIdentifier];
+		if (fromKeychain) {
+			NSDictionary *fromKeychainDict = [NSKeyedUnarchiver unarchiveObjectWithData: fromKeychain];
+			if (fromKeychainDict && fromKeychainDict.count) credential = [fromKeychainDict mutableCopy];
+		}
+	}
+	
+	if (!credential) credential = [NSMutableDictionary dictionaryWithCapacity:self.class.parameterPropertyMap.count];
+	
+	self.credential = credential;
+}
+
+- (id)initWithBaseURL:(NSURL *)url serviceName:(NSString *)serviceName {
 	if ((self = [super initWithBaseURL: url])) {
-		self.credential = credential;
+		[self pnd_sharedSetupWithServiceName: serviceName keychainIdentifier: nil];
 	}
 	return self;
 }
 
-- (id)initWithBaseURL:(NSURL *)url serviceName:(NSString *)serviceName {
-	return [self initWithBaseURL: url credential: [[PNDMutableOAuth1Credential alloc] initWithServiceName: serviceName]];
-}
-
 - (id)initWithBaseURL:(NSURL *)url serviceName:(NSString *)serviceName keychainIdentifier: (NSString *)identifier {
-	if (!identifier) return [self initWithBaseURL: url serviceName: serviceName];
-	return [self initWithBaseURL: url credential: [PNDMutableOAuth1Credential findStoreForServiceName: serviceName identifier: identifier] ?: [[PNDMutableOAuth1Credential alloc] initWithServiceName: serviceName identifier: identifier]];
-}
-
-- (id)initWithBaseURL:(NSURL *)url serviceName:(NSString *)serviceName username: (NSString *)username {
-	return [self initWithBaseURL: url credential: [PNDMutableOAuth1Credential findStoreForServiceName: serviceName username: username] ?: [[PNDMutableOAuth1Credential alloc] initWithServiceName: serviceName]];
+	if ((self = [super initWithBaseURL: url])) {
+		[self pnd_sharedSetupWithServiceName: serviceName keychainIdentifier: identifier];
+	}
+	return self;
 }
 
 #pragma mark - NSCoding
@@ -339,7 +367,10 @@ static NSString *PNDOAuthCreateSignature(NSURLRequest *request, NSDictionary *pa
 - (void)encodeWithCoder:(NSCoder *)aCoder {
 	[super encodeWithCoder: aCoder];
 	
-	[aCoder encodeObject: [NSKeyedArchiver archivedDataWithRootObject: self.credential] forKey: @"credential"];
+	[self saveAuthenticationState];
+	
+	[aCoder encodeObject: self.serviceName forKey: @"serviceName"];
+	[aCoder encodeObject: self.keychainIdentifier forKey: @"keychainIdentifier"];
 	
 	[aCoder encodeObject: self.consumerKey forKey: @"consumerKey"];
 	[aCoder encodeObject: self.consumerSecret forKey: @"consumerSecret"];
@@ -357,7 +388,9 @@ static NSString *PNDOAuthCreateSignature(NSURLRequest *request, NSDictionary *pa
 
 - (id)initWithCoder:(NSCoder *)aDecoder {
 	if ((self = [super initWithCoder: aDecoder])) {
-		self.credential = [NSKeyedUnarchiver unarchiveObjectWithData: [aDecoder decodeObjectForKey: @"credential"]];
+		NSString *serviceName = [aDecoder decodeObjectForKey: @"serviceName"];
+		NSString *keychainIdentifier = [aDecoder decodeObjectForKey: @"keychainIdentifier"];
+		[self pnd_sharedSetupWithServiceName: serviceName keychainIdentifier: keychainIdentifier];
 
 		self.consumerKey = [aDecoder decodeObjectForKey: @"consumerKey"];
 		self.consumerSecret = [aDecoder decodeObjectForKey: @"consumerSecret"];
@@ -391,8 +424,15 @@ static NSString *PNDOAuthCreateSignature(NSURLRequest *request, NSDictionary *pa
 
 #pragma mark - Actions
 
-- (void)reset {
-	[self.credential evict];
+- (BOOL)saveAuthenticationState {
+	NSDictionary *keychainDict = [self.credential copy];
+	NSData *keychainData = [NSKeyedArchiver archivedDataWithRootObject: keychainDict];
+	return [SSKeychain setPasswordData: keychainData forService: self.serviceName account: self.keychainIdentifier];
+}
+
+- (BOOL)resetAuthenticationState {
+	[self.credential removeAllObjects];
+	return [SSKeychain deletePasswordForService: self.serviceName account: self.keychainIdentifier];
 }
 
 #pragma mark - Utility maps
@@ -405,18 +445,18 @@ static NSString *PNDOAuthCreateSignature(NSURLRequest *request, NSDictionary *pa
 	PNDOAuthCallbackKey: @"callback",
 	PNDOAuthDisplayNameKey: @"displayName",
 	PNDOAuthScopeKey: @"scope",
-	PNDOAuthTokenKey: @"credential.token",
-	PNDOAuthHostedDomainKey: @"credential.hostedDomain",
+	PNDOAuthTokenKey: @"credential.oauth_token",
+	PNDOAuthHostedDomainKey: @"credential.hd",
 	PNDOAuthDomainKey: @"credential.domain",
-	PNDOAuthIconURLKey: @"credential.iconURLString",
-	PNDOAuthLanguageKey: @"credential.language",
-	PNDOAuthMobileKey: @"credential.mobile",
-	PNDOAuthVerifierKey: @"credential.verifier",
-	PNDOAuthServiceProviderKey: @"credential.serviceName",
-	PNDOAuthUserEmailKey: @"credential.username",
-	PNDOAuthUserEmailIsVerifiedKey: @"credential.userEmailIsVerified",
-	PNDOAuthTokenSecretKey: @"credential.secret",
-	PNDOAuthCallbackConfirmedKey: @"credential.callbackConfirmed",
+	PNDOAuthIconURLKey: @"credential.iconUrl",
+	PNDOAuthLanguageKey: @"credential.hl",
+	PNDOAuthMobileKey: @"credential.btmpl",
+	PNDOAuthVerifierKey: @"credential.oauth_verifier",
+	PNDOAuthServiceProviderKey: @"credential.serviceProvider",
+	PNDOAuthUserEmailKey: @"credential.email",
+	PNDOAuthUserEmailIsVerifiedKey: @"credential.isVerified",
+	PNDOAuthTokenSecretKey: @"credential.oauth_token_secret",
+	PNDOAuthCallbackConfirmedKey: @"credential.oauth_callback_confirmed",
 	};
 }
 
@@ -483,7 +523,7 @@ static NSString *PNDOAuthCreateSignature(NSURLRequest *request, NSDictionary *pa
 	// finally, compute the signature, if requested; the params
 	// must be complete for this
 	if ([keys containsObject: PNDOAuthSignatureKey]) {
-		NSString *value = PNDOAuthCreateSignature(request, params, self.signatureMethod, self.consumerSecret, self.credential.secret);
+		NSString *value = PNDOAuthCreateSignature(request, params, self.signatureMethod, self.consumerSecret, self.credential[PNDOAuthTokenSecretKey]);
 		params[PNDOAuthSignatureKey] = value;
 	}
 
@@ -629,20 +669,16 @@ static NSString *PNDOAuthCreateSignature(NSURLRequest *request, NSDictionary *pa
 	return PNDOAuthSignatureNameForMethod(self.signatureMethod);
 }
 
-- (NSString *)keychainIdentifier {
-	return self.credential.identifier;
-}
-
 - (NSString *)userEmail {
-	return self.credential.userEmail;
+	return self.credential[PNDOAuthUserEmailKey];
 }
 
 - (BOOL)userEmailIsVerified {
-	return [self.credential.userEmailIsVerified boolValue];
+	return [self.credential[PNDOAuthUserEmailIsVerifiedKey] boolValue];
 }
 
 - (BOOL)canAuthorize {
-	return self.credential.hasToken;
+	return !![self.credential[PNDOAuthTokenKey] length];
 }
 
 - (NSString *)version {
@@ -695,7 +731,7 @@ static NSString *PNDOAuthCreateSignature(NSURLRequest *request, NSDictionary *pa
         }
     }
 	[self.loginController dismiss];
-	[self reset];
+	[self resetAuthenticationState];
 }
 
 #pragma mark - Authorization requests
@@ -730,7 +766,7 @@ static NSString *PNDOAuthCreateSignature(NSURLRequest *request, NSDictionary *pa
 
 - (void)startWebRequestAtPath:(NSString *)authorizationPath withController:(id <PNDOAuth1LogInController>)controller success:(void(^)(NSDictionary *response))success failure:(void(^)(NSError *err))failure {
 	NSParameterAssert(success);
-	NSString *token = self.credential.token;
+	NSString *token = self.credential[PNDOAuthTokenKey];
 	if (token.length) {
 		NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
 		[nc postNotificationName: PNDOAuthUserWillSignInNotification object: self];

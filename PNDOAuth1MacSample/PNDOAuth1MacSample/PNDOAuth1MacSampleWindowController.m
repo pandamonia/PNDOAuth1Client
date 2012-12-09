@@ -88,7 +88,7 @@ static NSString *const kTwitterUserDefaultsItemName = @"Twitter User Name";
 - (void)signOut {
 	// remove the stored Twitter authentication from the keychain, if any
 	[[NSUserDefaults standardUserDefaults] removeObjectForKey: kTwitterUserDefaultsItemName];
-	[self.client reset];
+	[self.client resetAuthenticationState];
 	[self updateUI];
 }
 
@@ -97,7 +97,9 @@ static NSString *const kTwitterUserDefaultsItemName = @"Twitter User Name";
 
 	self.loginWindowController = [PNDOAuthLoginWindowController new];
 	[self.client startSigningInWithController: self.loginWindowController success:^{
-		[[NSUserDefaults standardUserDefaults] setObject: self.client.keychainIdentifier forKey: kTwitterUserDefaultsItemName];
+		if ([self.client saveAuthenticationState]) {
+			[[NSUserDefaults standardUserDefaults] setObject: self.client.keychainIdentifier forKey: kTwitterUserDefaultsItemName];
+		}
 		[self doAnAuthenticatedAPIFetch];
 		[self updateUI];
 	} failure:^(NSError *error) {
@@ -110,7 +112,7 @@ static NSString *const kTwitterUserDefaultsItemName = @"Twitter User Name";
 			NSLog(@"%@", str);
 		}
 
-		[self.client reset];
+		[self.client resetAuthenticationState];
 		[self updateUI];
 	}];
 }

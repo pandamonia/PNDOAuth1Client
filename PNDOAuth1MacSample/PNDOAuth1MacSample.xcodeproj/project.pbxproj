@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		6C89BC7C167478F900312134 /* SSKeychain.m in Sources */ = {isa = PBXBuildFile; fileRef = 6C89BC6A167478F900312134 /* SSKeychain.m */; };
 		6CD646C3163595BE00FAE62C /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6CD646C2163595BE00FAE62C /* Cocoa.framework */; };
 		6CD646CF163595BE00FAE62C /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 6CD646CE163595BE00FAE62C /* main.m */; };
 		6CD646D9163595BE00FAE62C /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 6CD646D7163595BE00FAE62C /* MainMenu.xib */; };
@@ -16,8 +17,6 @@
 		6CD647081635A3EB00FAE62C /* AFHTTPRequestOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 6CD646F71635A3EB00FAE62C /* AFHTTPRequestOperation.m */; };
 		6CD6470B1635A3EB00FAE62C /* AFNetworkActivityIndicatorManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 6CD646FD1635A3EB00FAE62C /* AFNetworkActivityIndicatorManager.m */; };
 		6CD6470D1635A3EB00FAE62C /* AFURLConnectionOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 6CD647021635A3EB00FAE62C /* AFURLConnectionOperation.m */; };
-		6CD647181635A42E00FAE62C /* DZAuthenticationStore.m in Sources */ = {isa = PBXBuildFile; fileRef = 6CD647121635A42E00FAE62C /* DZAuthenticationStore.m */; };
-		6CD647191635A42E00FAE62C /* PNDOAuth1Credential.m in Sources */ = {isa = PBXBuildFile; fileRef = 6CD647141635A42E00FAE62C /* PNDOAuth1Credential.m */; };
 		6CD6471A1635A42E00FAE62C /* PNDOAuthLoginWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6CD647161635A42E00FAE62C /* PNDOAuthLoginWindowController.m */; };
 		6CD6471B1635A42E00FAE62C /* PNDOAuthLoginWindowController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 6CD647171635A42E00FAE62C /* PNDOAuthLoginWindowController.xib */; };
 		6CD6471E1635A44100FAE62C /* PNDOAuth1Client.m in Sources */ = {isa = PBXBuildFile; fileRef = 6CD6471D1635A44100FAE62C /* PNDOAuth1Client.m */; };
@@ -26,6 +25,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		6C89BC69167478F900312134 /* SSKeychain.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SSKeychain.h; sourceTree = "<group>"; };
+		6C89BC6A167478F900312134 /* SSKeychain.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SSKeychain.m; sourceTree = "<group>"; };
 		6CD646BE163595BE00FAE62C /* PNDOAuth1MacSample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PNDOAuth1MacSample.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		6CD646C2163595BE00FAE62C /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		6CD646C5163595BE00FAE62C /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
@@ -48,10 +49,6 @@
 		6CD646FE1635A3EB00FAE62C /* AFNetworking.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AFNetworking.h; sourceTree = "<group>"; };
 		6CD647011635A3EB00FAE62C /* AFURLConnectionOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AFURLConnectionOperation.h; sourceTree = "<group>"; };
 		6CD647021635A3EB00FAE62C /* AFURLConnectionOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AFURLConnectionOperation.m; sourceTree = "<group>"; };
-		6CD647111635A42E00FAE62C /* DZAuthenticationStore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DZAuthenticationStore.h; sourceTree = "<group>"; };
-		6CD647121635A42E00FAE62C /* DZAuthenticationStore.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DZAuthenticationStore.m; sourceTree = "<group>"; };
-		6CD647131635A42E00FAE62C /* PNDOAuth1Credential.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PNDOAuth1Credential.h; sourceTree = "<group>"; };
-		6CD647141635A42E00FAE62C /* PNDOAuth1Credential.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PNDOAuth1Credential.m; sourceTree = "<group>"; };
 		6CD647151635A42E00FAE62C /* PNDOAuthLoginWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PNDOAuthLoginWindowController.h; sourceTree = "<group>"; };
 		6CD647161635A42E00FAE62C /* PNDOAuthLoginWindowController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PNDOAuthLoginWindowController.m; sourceTree = "<group>"; };
 		6CD647171635A42E00FAE62C /* PNDOAuthLoginWindowController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PNDOAuthLoginWindowController.xib; sourceTree = "<group>"; };
@@ -76,10 +73,20 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		6C89BC63167478F900312134 /* sskeychain */ = {
+			isa = PBXGroup;
+			children = (
+				6C89BC69167478F900312134 /* SSKeychain.h */,
+				6C89BC6A167478F900312134 /* SSKeychain.m */,
+			);
+			path = sskeychain;
+			sourceTree = "<group>";
+		};
 		6CD646B3163595BE00FAE62C = {
 			isa = PBXGroup;
 			children = (
 				6CD646F31635A3EB00FAE62C /* AFNetworking */,
+				6C89BC63167478F900312134 /* sskeychain */,
 				6CD647101635A42E00FAE62C /* PNDOAuth1Client */,
 				6CD646C8163595BE00FAE62C /* PNDOAuth1MacSample */,
 				6CD646C1163595BE00FAE62C /* Frameworks */,
@@ -159,12 +166,8 @@
 		6CD647101635A42E00FAE62C /* PNDOAuth1Client */ = {
 			isa = PBXGroup;
 			children = (
-				6CD647111635A42E00FAE62C /* DZAuthenticationStore.h */,
-				6CD647121635A42E00FAE62C /* DZAuthenticationStore.m */,
 				6CD6471C1635A44100FAE62C /* PNDOAuth1Client.h */,
 				6CD6471D1635A44100FAE62C /* PNDOAuth1Client.m */,
-				6CD647131635A42E00FAE62C /* PNDOAuth1Credential.h */,
-				6CD647141635A42E00FAE62C /* PNDOAuth1Credential.m */,
 				6CD647341636088A00FAE62C /* Mac */,
 			);
 			name = PNDOAuth1Client;
@@ -251,10 +254,9 @@
 				6CD647081635A3EB00FAE62C /* AFHTTPRequestOperation.m in Sources */,
 				6CD6470B1635A3EB00FAE62C /* AFNetworkActivityIndicatorManager.m in Sources */,
 				6CD6470D1635A3EB00FAE62C /* AFURLConnectionOperation.m in Sources */,
-				6CD647181635A42E00FAE62C /* DZAuthenticationStore.m in Sources */,
-				6CD647191635A42E00FAE62C /* PNDOAuth1Credential.m in Sources */,
 				6CD6471A1635A42E00FAE62C /* PNDOAuthLoginWindowController.m in Sources */,
 				6CD6471E1635A44100FAE62C /* PNDOAuth1Client.m in Sources */,
+				6C89BC7C167478F900312134 /* SSKeychain.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -9,7 +9,6 @@
 
 #import "AFHTTPClient.h"
 #import "AFHTTPRequestOperation.h"
-#import "PNDOAuth1Credential.h"
 
 typedef NS_ENUM(NSInteger, PNDOAuthSignatureMethod) {
     PNDOAuthSignatureMethodPlaintext = 0,
@@ -81,7 +80,6 @@ extern NSString *const PNDOAuthUserEmailIsVerifiedKey;
 @interface PNDOAuth1Client : AFHTTPClient
 
 - (id)initWithBaseURL:(NSURL *)url serviceName:(NSString *)serviceName;
-- (id)initWithBaseURL:(NSURL *)url serviceName:(NSString *)serviceName username: (NSString *)username;
 - (id)initWithBaseURL:(NSURL *)url serviceName:(NSString *)serviceName keychainIdentifier: (NSString *)identifier;
 
 @property (nonatomic, copy) NSString *consumerKey;
@@ -97,17 +95,18 @@ extern NSString *const PNDOAuthUserEmailIsVerifiedKey;
 @property (nonatomic, strong) NSURL *authorizationURL;
 @property (nonatomic, strong) NSURL *accessTokenURL;
 
-@property (nonatomic, readonly) NSString *keychainIdentifier;
+@property (nonatomic, copy, readonly) NSString *keychainIdentifier;
 
 @property (nonatomic, readonly) NSString *userEmail;
 @property (nonatomic, readonly, getter = userEmailIsVerified) BOOL userEmailVerified;
 
 @property (nonatomic, readonly) BOOL canAuthorize;
 
+- (BOOL)saveAuthenticationState;
+- (BOOL)resetAuthenticationState;
+
 - (void)startSigningInWithController:(id <PNDOAuth1LogInController>)controller success:(void(^)(void))success failure:(void(^)(NSError *err))failure;
 - (void)cancelSigningIn;
-
-- (void)reset;
 
 - (void)addRequestTokenHeaderToRequest:(NSMutableURLRequest *)request;
 - (void)addAuthorizeTokenHeaderToRequest:(NSMutableURLRequest *)request;
